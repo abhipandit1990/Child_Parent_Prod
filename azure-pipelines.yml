@@ -1,0 +1,100 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
+
+stages:
+
+# ==================================================
+# STAGE 1 - SCAN
+# ==================================================
+
+- stage: Scan
+  displayName: Terraform Security Scan
+
+  jobs:
+  - job: SecurityScan
+    displayName: Security Scan
+
+    steps:
+
+    - checkout: self
+
+    # Install Terraform
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: 'latest'
+
+    # Terraform Init
+    - script: |
+        terraform -chdir=$(workingDirectory) init -backend=false
+      displayName: Terraform Init
+
+    # Terraform Format Check
+    - script: |
+        terraform -chdir=$(workingDirectory) fmt -check -recursive
+      displayName: Terraform Format Check
+
+    # Terraform Validate
+    - script: |
+        terraform -chdir=$(workingDirectory) validate
+      displayName: Terraform Validate
+
+    # Install Checkov
+    - script: |
+        pip install checkov
+      displayName: Install Checkov
+
+    # Checkov Security Scan
+    - script: |
+        checkov -d $(System.DefaultWorkingDirectory)
+      displayName: Checkov Security Scan
+
+
+# ==================================================
+# STAGE 2 - PLAN
+# ==================================================
+
+- stage: Plan
+  displayName: Terraform Plan
+
+  dependsOn: Scan
+
+  condition: succeeded()
+
+  jobs:
+  - job: TerraformPlan
+    displayName: Terraform Plan
+
+    steps:
+
+    - checkout: self
+
+    # Install Terraform
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: 'latest'
+
+    # Terraform Init
+    - script: |
+        terraform -chdir=$(workingDirectory) init
+      displayName: Terraform Init
+
+    # Terraform Plan
+    - script: |
+        terraform -chdir=$(workingDirectory) plan
+      displayName: Terraform Plan
