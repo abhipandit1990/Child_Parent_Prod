@@ -6,12 +6,12 @@ on:
       - main
       - feature/prod
     paths:
-      - 'environments/prod/**'
+      - environments/prod
   pull_request:
     branches:
       - main
     paths:
-      - 'environments/prod/**'
+      - environments/prod
   workflow_dispatch:
 
 env:
