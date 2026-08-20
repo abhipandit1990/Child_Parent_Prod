@@ -10,8 +10,6 @@ on:
     branches:
       - main
 
-  workflow_dispatch:
-
 env:
   # These variables are automatically picked up by the AzureRM Terraform provider
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -27,7 +25,7 @@ jobs:
     # Sets the working directory for all run steps in this job
     defaults:
       run:
-        working-directory: ./environments/prod
+        working-directory: ./environments/prod/
   
     steps:
         - name: Checkout Code
@@ -39,13 +37,16 @@ jobs:
         # - name: Setting the subscription
         #   run: az account set --subscription $ARM_SUBSCRIPTION_ID
 
+        - name: Logging into Azure
+          run: az login
+
         - name: Checking logged account details
           run: az account show
     
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v3
           with:
-            terraform_version: "1.5.0" # Adjust to match your environment
+            terraform_version: "1.15.9" # Adjust to match your environment
 
         - name: Terraform Init
           run: terraform init
