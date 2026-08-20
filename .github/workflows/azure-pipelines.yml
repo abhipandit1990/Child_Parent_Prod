@@ -30,6 +30,9 @@ jobs:
         working-directory: ./environments/prod
   
     steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+          
         - name: Login into Azure
           run: az login --service-principal \
             --username $ARM_CLIENT_ID \
@@ -42,9 +45,6 @@ jobs:
         - name: Checking logged account details
           run: az account show
     
-        - name: Checkout Code
-          uses: actions/checkout@v4
-
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v3
           with:
