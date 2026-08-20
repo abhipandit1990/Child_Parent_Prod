@@ -5,8 +5,7 @@ on:
     branches:
       - main
       - feature/prod
-    paths:
-      - environments/prod
+      
   pull_request:
     branches:
       - main
