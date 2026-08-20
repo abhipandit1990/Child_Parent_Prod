@@ -38,7 +38,9 @@ jobs:
         #   run: az account set --subscription $ARM_SUBSCRIPTION_ID
 
         - name: Logging into Azure
-          run: az login
+          uses: azure/login@v3
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
 
         - name: Checking logged account details
           run: az account show
