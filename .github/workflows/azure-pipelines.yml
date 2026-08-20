@@ -22,7 +22,7 @@ jobs:
     name: 'Terraform Plan and Apply'
     runs-on: ubuntu-latest
     
-    # Sets the working directory for all run steps in this job
+    # Sets the working directory for all run steps in this job wow!
     defaults:
       run:
         working-directory: ./environments/prod/
