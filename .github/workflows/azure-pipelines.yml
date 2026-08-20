@@ -28,23 +28,35 @@ jobs:
     defaults:
       run:
         working-directory: ./environments/prod
-
+  
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+        - name: Login into Azure
+          run: az login --service-principal \
+            --username $ARM_CLIENT_ID \
+            --password $ARM_CLIENT_SECRET \
+            --tenant $ARM_TENANT_ID
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.5.0" # Adjust to match your environment
+        - name: Setting the subscription
+          run: az account set --subscription $ARM_SUBSCRIPTION_ID
 
-    - name: Terraform Init
-      run: terraform init
+        - name: Checking logged account details
+          run: az account show
+    
+        - name: Checkout Code
+          uses: actions/checkout@v4
 
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+          with:
+            terraform_version: "1.5.0" # Adjust to match your environment
 
-    - name: Terraform Apply
-      # Only apply automatically if this is a push to the main branch
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve tfplan
+        - name: Terraform Init
+          run: terraform init
+
+        - name: Terraform Plan
+          run: terraform plan 
+
+        - name: Terraform Apply
+          # Only apply automatically if this is a push to the main branch
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          run: terraform apply -auto-approve
